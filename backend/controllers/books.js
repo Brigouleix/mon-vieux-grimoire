@@ -2,13 +2,16 @@ const { error } = require('console');
 const Book = require('../models/Book');
 const fs = require('fs');
 
+
+
+
 exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
   const book = new Book({
     ...bookObject,
-    userdId: req.auth.userdId,
+    userdId: req.auth.userId,
     imageUrl: `${req.protocol}://${'host'}/image/${req.file.filename}`
   });
 
@@ -67,7 +70,7 @@ exports.getOneBook = (req, res, next) => {
 };
 
 
-exports.getAllStuff =  (req, res, next) => {
+exports.getAllBook =  (req, res, next) => {
     Book.find()
       .then(books => res.status(200).json(books))
       .catch(error => res.status(400).json({ error }));
