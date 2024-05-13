@@ -12,7 +12,7 @@ exports.createBook = (req, res, next) => {
   const book = new Book({
     ...bookObject,
     userdId: req.auth.userId,
-    imageUrl: `${req.protocol}://${'host'}/image/${req.file.filename}`
+    imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
   });
 
   book.save()
@@ -78,3 +78,4 @@ exports.getAllBook =  (req, res, next) => {
 
 
 
+// rateBook + créer dans les routes books, puis créer un put et un get .
