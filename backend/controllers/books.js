@@ -79,3 +79,93 @@ exports.getAllBook =  (req, res, next) => {
 
 
 // rateBook + créer dans les routes books, puis créer un put et un get .
+exports.rateBook = (req, res, next) => {
+  const bookId = req.params.id;
+  const { userId, rating } = req.body;
+
+  // Vérifie que la note est comprise entre 0 et 5
+  if (rating < 0 || rating > 5) {
+      return res.status(400).json({
+          error: "INVALID_RATING",
+          message: "La note doit être un chiffre entre 0 et 5.",
+      });
+  }
+
+  Book.findById(bookId)
+      // Vérifie si le livre existe
+      .then((book) => {
+          if (!book) {
+              throw new Error("BOOK_NOT_FOUND");
+          }
+
+          //Vérifie si l'utilisateur a déjà noté le livre
+          return Book.findOne({ _id: bookId, "ratings.userId": userId }).then(
+              (alreadyRated) => {
+                  if (alreadyRated) {
+                      throw new Error("ALREADY_RATED");
+                  }
+
+                  // Met à jour la moyenne des notations
+                  const grades = book.ratings.map((rating) => rating.grade);
+                  const sumRatings = grades.reduce(
+                      (total, grade) => total + grade,
+                      0
+                  );
+
+                  const newTotalRating = sumRatings + rating;
+                  const newAverageRating = Number(
+                      (newTotalRating / (book.ratings.length + 1)).toFixed(2)
+                  );
+
+                  // Mise à jour des données du livre
+                  book.ratings.push({ userId, grade: rating });
+                  book.averageRating = newAverageRating;
+
+                  // Sauvegarde les modifications du livre dans la base de données
+                  return book.save().then((updatedBook) => {
+                      res.status(201).json({
+                          ...updatedBook._doc,
+                          id: updatedBook._doc._id,
+                      });
+                  });
+              }
+          );
+      })
+
+      // Une erreur s'est produite lors de la notation du livre
+      .catch((error) => {
+          if (error.message === "BOOK_NOT_FOUND") {
+              return res.status(404).json({
+                  error: error.message,
+                  message: "Livre introuvable.",
+              });
+          } else if (error.message === "ALREADY_RATED") {
+              return res.status(403).json({
+                  error: error.message,
+                  message: "Vous avez déjà noté ce livre.",
+              });
+          } else {
+              return res.status(500).json({
+                  error: error.message,
+                  message:
+                      "Une erreur est survenue lors de la notation du livre.",
+              });
+          }
+      });
+};
+
+exports.getBestRating = (req, res, next) => {
+  Book.find()
+      .sort({ averageRating: -1 })
+      .limit(3)
+      .then((books) => {
+          res.status(200).json(books);
+      })
+      .catch((error) => {
+          res.status(500).json({
+              message:
+                  "Une erreur est survenue lors de la récupération des livres avec la meilleure note.",
+              error: error,
+          });
+      });
+};

@@ -15,10 +15,12 @@ router.post('/', auth, multer, sharp, bookCtrl.createBook);
 
 router.get('/:id', bookCtrl.getOneBook);
 
-router.put('/:id', auth, multer, sharp, bookCtrl.modifyBook);
+router.put('/:id', multer, sharp, bookCtrl.modifyBook);
 
 router.delete('/:id', auth, bookCtrl.deleteBook);
 
+router.post('/:id/rating', auth, bookCtrl.rateBook);
 
+router.get('/bestrating', bookCtrl.getBestRating);
 
 module.exports = router;
