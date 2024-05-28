@@ -9,18 +9,13 @@ const bookCtrl = require('../controllers/books');
 
 
 
-router.get('/', bookCtrl.getAllBook);
+router.get('/', bookCtrl.getAllBooks)
+router.get('/bestrating', bookCtrl.getTopRatedBooks)
+router.get('/:id', bookCtrl.getOneBook)
+router.post('/', auth, multer, sharp, bookCtrl.createBook)
+router.post('/:id/rating', auth, bookCtrl.addBookRating)
+router.put('/:id', auth, multer, sharp, bookCtrl.modifyBook)
+router.delete('/:id', auth, bookCtrl.deleteBook)
 
-router.post('/', auth, multer, sharp, bookCtrl.createBook);
-
-router.get('/:id', bookCtrl.getOneBook);
-
-router.put('/:id', multer, sharp, bookCtrl.modifyBook);
-
-router.delete('/:id', auth, bookCtrl.deleteBook);
-
-router.post('/:id/rating', auth, bookCtrl.rateBook);
-
-router.get('/bestrating', bookCtrl.getBestRating);
 
 module.exports = router;
