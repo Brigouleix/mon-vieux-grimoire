@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 
-require("dotenv").config({ path: ".env.local" });
+require("dotenv").config({ path: ".env" });
 
 
 
