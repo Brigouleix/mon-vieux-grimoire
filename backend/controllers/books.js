@@ -76,39 +76,7 @@ exports.createBook = async (req, res, next) => {
 }
 
 // Ajoute une note à un livre
-exports.addBookRating = async (req, res, next) => {
-   // Vérifie que l'utilisateur n'a pas déjà noté le livre
-   const existingRating = await Book.findOne({
-    _id: req.params.id,
-    "ratings.userId": req.body.userId
-  })
-  if (existingRating) {
-    return res.status(400).json({ message: 'L\'utilisateur a déjà noté ce livre' })
-  }
 
-  // Vérifie que la note est un nombre entre 0 et 5 inclus
-  if(!(req.body.rating >= 0) && !(req.body.rating <= 5) && (typeof req.body.rating === 'number')){
-    return res.status(500).json({ message: 'La note n\'est pas comprise entre 0 et 5 inclus ou n\'est pas un nombre' })
-  }
-
-  try {
-    // Récupère le livre à noter selon l'id de la requête
-    const book = await Book.findOne({ _id: req.params.id })
-    if (!book) {
-      return res.status(404).json({ message: 'Livre non trouvé' })
-    }
-
-    // Ajoute une nouvelle note au tableau des notes du livre
-    book.ratings.push({ userId : req.body.userId, grade: req.body.rating })
-
-    // Sauvegarde le livre dans MongoDB, averageRating sera mis à jour à la sauvegarde
-    await book.save()
-    res.status(200).json(book)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Une erreur est survenue' })
-  }
-}
 
 // Modifie un livre
 exports.modifyBook = async (req, res, next) => {
@@ -168,4 +136,48 @@ exports.deleteBook = (req, res, next) => {
     .catch(error => {
       res.status(500).json({ error })
     })
+}
+
+exports.addRating = async (req, res, next) => {
+  const ratingObject = req.body;
+  const userId = ratingObject.userId;
+  const rating = ratingObject.rating;
+
+  try {
+    // Recherche du livre à partir de son ID
+    const book = await Book.findOne({ _id: req.params.id });
+
+    if (!book) {
+      return res.status(404).json({ message: 'Livre non trouvé' });
+    } // on vérifie que le livre existe
+
+    // Vérifier si l'utilisateur a déjà noté le livre
+    if (book.ratings.find((r) => r.userId === userId)) {
+      return res.status(400).json({ message: 'Vous avez déjà noté ce livre.' });
+    }
+
+    // Vérifier si la notation est valide (entre 1 et 5 étoiles)
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ message: 'La notation doit être entre 1 et 5 étoiles.' });
+    }
+
+    // Ajouter la nouvelle évaluation à la liste
+    book.ratings.push({ userId, grade: rating });
+
+    // Calcul somme totale de toutes les évaluations
+    let rates = 0;
+    for (let i = 0; i < book.ratings.length; i++) {
+      rates += book.ratings[i].grade;
+    }
+
+    // Calcul de la moyenne des évaluations + arrondis résultat avec toFixed
+    book.averageRating = parseFloat((rates / book.ratings.length).toFixed(1));
+
+    // Enregistrer les modifications en base de données
+    await book.save();
+
+    res.status(200).json(book);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }

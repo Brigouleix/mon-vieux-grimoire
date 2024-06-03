@@ -6,15 +6,33 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 
+require("dotenv").config({ path: ".env.local" });
 
 
 
-
+const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordFormat = /^(?=.*\d).{8,}$/;
 
 
 
 
 exports.signup = (req, res ,next) => {
+    const errorMessages = [];
+
+    // Vérifie le format de l'email
+    if (!emailFormat.test(req.body.email)) {
+        errorMessages.push("Format de l'email invalide.");
+    }
+    // Vérifie le format du mot de passe
+    if (!passwordFormat.test(req.body.password)) {
+        errorMessages.push(
+            "Format du mot de passe invalide. Le mot de passe doit contenir au moins 8 caractères et au moins 1 chiffre."
+        );
+    }
+    // Renvoie l'erreur
+    if (errorMessages.length > 0) {
+        return res.status(400).json({ messages: errorMessages });
+    }
     bcrypt.hash(req.body.password, 10)
     .then(hash => {
         const user = new User ({
@@ -46,7 +64,7 @@ exports.login = (req, res, next) => {
                         userId: user._id,
                         token: jwt.sign(
                             {userId: user._id},
-                            'RANDOM_TOKEN_SECRET',
+                            process.env.SECRET_KEY,
                             { expiresIn: '24h' }
                         )
                     });
