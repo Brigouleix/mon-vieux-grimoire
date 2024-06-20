@@ -1,4 +1,4 @@
-const API_URL = 'https://mon-vieux-grimoire-oi7u-iuu7yh62k-brigouleixs-projects.vercel.app';
+const API_URL = 'http://localhost:4000';
 export const API_ROUTES = {
   SIGN_UP: `${API_URL}/api/auth/signup`,
   SIGN_IN: `${API_URL}/api/auth/login`,
