@@ -1,4 +1,4 @@
-const API_URL = 'mongodb+srv://brigoo:Erwan1234*@atlascluster.d2l6kub.mongodb.net/?retryWrites=true&w=majority&appName=AtlasCluster';
+const API_URL = 'http://localhost:4000';
 export const API_ROUTES = {
   SIGN_UP: `${API_URL}/api/auth/signup`,
   SIGN_IN: `${API_URL}/api/auth/login`,
