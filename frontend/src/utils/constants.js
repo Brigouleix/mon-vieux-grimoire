@@ -1,4 +1,4 @@
-const API_URL = 'https://mon-vieux-grimoire-geaf.vercel.app/';
+const API_URL = 'https://mon-vieux-grimoire-geaf-nok1li720-brigouleixs-projects.vercel.app';
 export const API_ROUTES = {
   SIGN_UP: `${API_URL}/api/auth/signup`,
   SIGN_IN: `${API_URL}/api/auth/login`,
