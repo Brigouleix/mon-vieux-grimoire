@@ -1,4 +1,4 @@
-const API_URL = 'https://eu-west-2.aws.data.mongodb-api.com/app/data-cjqciym/endpoint/data/v1';
+const API_URL = 'http://localhost:4000';
 export const API_ROUTES = {
   SIGN_UP: `${API_URL}/api/auth/signup`,
   SIGN_IN: `${API_URL}/api/auth/login`,
